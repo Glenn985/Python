@@ -1,6 +1,6 @@
 import tkinter as tk
 
-# Function to update the display when a button is clicked
+
 def update_display(value):
     current_text = display_var.get()
     display_var.set(current_text + value)
@@ -51,12 +51,12 @@ def getnumber():
             if number != 0:
                 answer = firstnumber / number
             else:
-                # Handle division by zero error
+   
                 answer = "Error"
         
-        # Set the answer to the display variable and update the display
+        
         display_var.set(str(answer))
-        update_display(str(answer)) 
+      
         
         # Reset variables for the next calculation
         operator = ""
@@ -118,6 +118,10 @@ button_equal.grid(row=5, column=0, sticky='nsew', padx=5, pady=5)  # Corrected c
 
 button_decimal = tk.Button(button_frame, text='.', font=('Arial', 18), padx=20, pady=20, command=lambda: update_display('.'))
 button_decimal.grid(row=4, column=3, sticky='nsew', padx=5, pady=5)
+
+
+
+
 
 
 
