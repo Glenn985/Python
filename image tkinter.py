@@ -2,7 +2,7 @@ from tkinter import *
 from PIL import ImageTk, Image
 
 sai = Tk()
-sai.title("Godly as hell")
+sai.title("Image")
 
 imagenumber = 0
 
