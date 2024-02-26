@@ -1,0 +1,32 @@
+import streamlit as st
+import requests 
+from bs4 import BeautifulSoup
+
+st.title("Covid APP" )
+
+with st.form("search"):
+    keyword = st.text_input("Enter Keyword")
+    search = st.form_submit_button("search")
+    if search:
+        page = requests.get(f"https://www.worldometers.info/coronavirus/country/{keyword}")
+        page1 = requests.get(f"https://unsplash.com/s/photos/{search}-flag")
+        print(page1.status_code)
+        if page.status_code == 200:
+            soup = BeautifulSoup(page.text, 'html.parser')  # Specify the parser explicitly
+            
+            # This part should be inside the conditional block where page content is retrieved
+            numbers = soup.find_all('div', class_='maincounter-number')
+            print(numbers)
+            parsed_numbers = [findelement.find('span').text.strip() for findelement in numbers]
+
+            st.write("Total case",parsed_numbers[0])
+            st.write("Total death",parsed_numbers[1])
+        else:
+            st.write("Failed to retrieve page content.")
+        
+        if page1.status_code == 200:
+            soup1 = BeautifulSoup(page1.text, 'html.parser')
+            
+            images = soup1.find_all('img', class_='MorZF')
+            print(images)
+
