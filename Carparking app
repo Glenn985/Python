@@ -1,0 +1,218 @@
+import tkinter as tk
+from tkinter import messagebox, Label
+
+
+from datetime import datetime, date,timedelta
+
+Parking_list =[]
+
+
+class billing:
+    def __init__(self, vehiclenumber, timeofentry, type_of_Vehicle):
+        self.vehiclenumber = vehiclenumber
+        self.timeofentry = timeofentry
+      
+        self.type_of_Vehicle = type_of_Vehicle
+
+class CarParking:
+    def __init__(self, num_2W, num_4W, num_Truck, num_PhysicallyDisabled):
+        self.num_2W = num_2W
+        self.num_4W = num_4W
+        self.num_Truck = num_Truck
+        self.num_PhysicallyDisabled = num_PhysicallyDisabled
+
+
+        
+    def park_vehicle(self, vehicle_type):
+        if vehicle_type == '2W':
+            if self.num_2W > 0:
+                self.num_2W -= 1
+                self.update_remaining()
+                return True
+            else:
+                print("No space available for 2-wheelers.")
+                return False
+        elif vehicle_type == '4W':
+            if self.num_4W > 0:
+                self.num_4W -= 1
+                self.update_remaining()
+                return True
+            else:
+                print("No space available for 4-wheelers.")
+                return False
+        elif vehicle_type == 'Truck':
+            if self.num_Truck > 0:
+                self.num_Truck -= 1
+                self.update_remaining()
+                return True
+            else:
+                print("No space available for trucks.")
+                return False
+        elif vehicle_type == 'PhysicallyDisabled':
+            if self.num_PhysicallyDisabled > 0:
+                self.num_PhysicallyDisabled -= 1
+                self.update_remaining()
+                return True
+            else:
+                print("No space available for physically disabled.")
+                return False
+        else:
+            print("Invalid vehicle type.")
+            return False
+
+    def unpark_vehicle(self, vehicle_type):
+        if vehicle_type == '2W':
+            self.num_2W += 1
+            self.update_remaining()
+        elif vehicle_type == '4W':
+            self.num_4W += 1
+            self.update_remaining()
+        elif vehicle_type == 'Truck':
+            self.num_Truck += 1
+            self.update_remaining()
+        elif vehicle_type == 'PhysicallyDisabled':
+            self.num_PhysicallyDisabled += 1
+            self.update_remaining()
+        else:
+            print("Invalid vehicle type.")
+
+    
+    def open_file():
+     file_path = r"C:\Users\glenn\OneDrive\Desktop\python\File-forcarpark.txt"
+     os.startfile(file_path)
+
+   
+
+    def update_remaining(self):
+        app.update_remaining()
+
+        print("f")
+
+class ParkingApp(tk.Tk):
+    def __init__(self):
+        super().__init__() 
+
+        self.title("Parking Management System")
+        self.geometry("400x300")
+
+        self.label = tk.Label(self, text="Parking Management System", font=('Arial', 14))
+        self.label.pack(pady=10)
+
+        self.label_remaining = tk.Label(self, text="")
+        self.label_remaining.pack(pady=5)
+
+        self.Entrypayment = tk.Entry(self, width=50)
+        self.Entrypayment.pack(pady=5)
+        self.Entrypayment.insert(1, "Vehicle payment:")
+        payment_mode = self.Entrypayment.get()
+       
+
+      
+        
+        self.EntryNumber = tk.Entry(self, width=50)
+        self.EntryNumber.pack(pady=5)
+        self.EntryNumber.insert(1, "Vehicle Number:")
+
+        self.EntryUnpark = tk.Entry(self, width=50)
+        self.EntryUnpark.pack(pady=5)
+        self.EntryUnpark.insert(1, "Unpark Vehicle Number:")
+        Unpark_number = self.EntryUnpark.get()
+
+        self.button_park_2W = tk.Button(self, text="Park 2-Wheeler", command=lambda: self.park_vehicle('2W'))
+        self.button_park_2W.pack(pady=5)
+
+        self.button_park_4W = tk.Button(self, text="Park 4-Wheeler", command=lambda: self.park_vehicle('4W'))
+        self.button_park_4W.pack(pady=5)
+
+        self.button_park_Truck = tk.Button(self, text="Park Truck", command=lambda: self.park_vehicle('Truck'))
+        self.button_park_Truck.pack(pady=5)
+
+        self.button_park_PD = tk.Button(self, text="Park Physically Disabled", command=lambda: self.park_vehicle('PhysicallyDisabled'))
+        self.button_park_PD.pack(pady=5)
+
+        self.button_unpark_2W = tk.Button(self, text="Unpark 2-Wheeler", command=lambda: self.unpark_vehicle('2W'))
+        self.button_unpark_2W.pack(pady=5)
+
+        self.button_unpark_4W = tk.Button(self, text="Unpark 4-Wheeler", command=lambda: self.unpark_vehicle('4W'))
+        self.button_unpark_4W.pack(pady=5)
+
+        self.button_unpark_Truck = tk.Button(self, text="Unpark Truck", command=lambda: self.unpark_vehicle('Truck'))
+        self.button_unpark_Truck.pack(pady=5)
+
+        self.button_unpark_PD = tk.Button(self, text="Unpark Physically Disabled", command=lambda: self.unpark_vehicle('PhysicallyDisabled'))
+        self.button_unpark_PD.pack(pady=5)
+        
+        self.button_OpenFile = tk.Button(self, text="Open File", command=lambda: open_file())
+        self.button_OpenFile.pack(pady=5)
+
+        self.button_exit = tk.Button(self, text="Exit", command=self.destroy)
+        self.button_exit.pack(pady=5)
+
+        self.parking_lot = CarParking(num_2W=10, num_4W=20, num_Truck=5, num_PhysicallyDisabled=2)
+     
+    
+        
+    def update_remaining(self):
+        remaining_text = f"Remaining Spaces: 2W: {self.parking_lot.num_2W}, 4W: {self.parking_lot.num_4W}, Truck: {self.parking_lot.num_Truck}, Physically Disabled: {self.parking_lot.num_PhysicallyDisabled}"
+        self.label_remaining.config(text=remaining_text)
+
+    def park_vehicle(self, vehicle_type):
+        if self.parking_lot.park_vehicle(vehicle_type):
+            print(f"{vehicle_type} parked successfully!")
+            entered_value = self.EntryNumber.get()
+            payment_mode = self.Entrypayment.get()
+            current_datetime = datetime.now()
+        
+            Parking_list.append(billing(entered_value,current_datetime, vehicle_type))
+            response =  messagebox.showinfo("information","parked")
+            Label(self,text=response).pack()
+         
+            
+        else:
+            print(f"Unable to park {vehicle_type}.")
+            
+
+    def unpark_vehicle(self, vehicle_type):
+      self.parking_lot.unpark_vehicle(vehicle_type)
+      print(f"{vehicle_type} unparked successfully!")
+        
+        
+        
+        
+        
+
+         
+      Unpark_number = self.EntryUnpark.get()
+      payment_mode =  self.Entrypayment.get()
+      for bill in Parking_list:
+       if Unpark_number == bill.vehiclenumber:
+        unpark_datetime = datetime.now()
+        Time_parked = (unpark_datetime - bill.timeofentry).total_seconds() / 3600 
+        print(Time_parked)
+
+        if bill.type_of_Vehicle == "Truck":
+           response =  messagebox.showinfo(payment_mode,Time_parked*50)
+        elif bill.type_of_Vehicle == "2W":
+            response =  messagebox.showinfo(payment_mode,Time_parked*10)
+        elif bill.type_of_Vehicle == "4W":
+            response =  messagebox.showinfo(payment_mode,Time_parked*25)
+        elif bill.type_of_Vehicle == "PhysicallyDisabled":
+            response =  messagebox.showinfo(payment_mode,Time_parked*5)
+
+       
+        Label(self,text=response).pack()
+
+  
+
+
+        with open("C:\\Users\\glenn\\OneDrive\\Desktop\\python\\File-forcarpark.txt", "w") as file:
+          content = f"Date: {datetime.now()}, Type of vehicle: {bill.type_of_Vehicle}, Cost: {Time_parked*50}"
+          file.write(content + "\n")
+
+
+
+
+if __name__ == "__main__":
+    app = ParkingApp()
+    app.mainloop()
+
