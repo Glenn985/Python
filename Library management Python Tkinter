@@ -1,0 +1,157 @@
+import tkinter as tk
+from tkinter import messagebox
+jack =[]
+Library = []
+
+class File_format:
+    def __init__(self, ID, Book_Name, Author_Name, Status):
+        self.ID = ID
+        self.Book_name = Book_Name
+        self.Author_Name = Author_Name
+        self.Status = Status
+
+with open(r"C:\Users\glenn\OneDrive\Desktop\python\library_record.txt", 'r') as file:
+    for line in file:
+        
+        data = line.split("|")
+        
+        
+        if len(data) == 4:
+            IDN, Book_NameN, Author_NameN, StatusN = data
+            Library.append(File_format(IDN, Book_NameN, Author_NameN, StatusN))
+
+
+for item in Library: 
+    print("ID:", item.ID)
+    print("Book Name:", item.Book_name)
+    print("Author Name:", item.Author_Name)
+    print("Status:", item.Status)
+    print()
+
+
+
+class LibraryApp(tk.Tk):
+    def __init__(self):
+        super().__init__()
+
+        
+        self.Label = tk.Label(self, text="Library", font=('Arial', 20))
+        self.Label.grid(row=0, column=0, columnspan=10, pady=5, sticky='nsew')
+
+        self.EntryBook = tk.Entry(self, width=50)
+        self.EntryBook.grid(row=2, column=0, columnspan=2, pady=5)
+        self.EntryBook.insert(0, "Book name/Author/Book ID:")
+        respone_Book = self.EntryBook.get().split(":")[1].strip()
+
+        self.button = tk.Button(self, text="Check if book available", command=self.Check_book)
+        self.button.grid(row=3, column=0, columnspan=2, pady=5)
+
+        self.Entry_issue_book = tk.Entry(self, width=50)
+        self.Entry_issue_book.grid(row=4, column=0, columnspan=2, pady=5)
+        self.Entry_issue_book.insert(0, "book name:")
+        
+        self.button = tk.Button(self,text="Issue a book:",command =self.issue_book)
+        self.button.grid(row=5, column=0, columnspan=2, pady=5)
+
+        self.Entry_Return_Book = tk.Entry(self, width=50)
+        self.Entry_Return_Book.grid(row=6, column=0, columnspan=2, pady=5)
+        self.Entry_Return_Book.insert(0, "Catalogue ID:")
+        
+        
+        
+        self.button = tk.Button(self,text="Return a Book:",command =self.Return_book)
+        self.button.grid(row=7, column=0, columnspan=2, pady=5)
+
+       
+
+        
+
+
+    def Check_book(self):
+        entry_text = self.EntryBook.get()   
+    
+        response_Book = entry_text.split(":")[1].strip().lower()   
+     
+        count = 7
+        
+
+        for item in Library:
+         
+         flag = False  # Initialize the flag for each item
+        
+         if response_Book.lower() == item.Book_name.lower():
+            flag = True
+            print(f"The book {response_Book} is available")
+            print(f"Book name: {item.Book_name}, status of book: {item.Status}")
+            messagebox.showinfo("Information", f"Book name: {item.Book_name}, status of book: {item.Status}")
+            break  # Exit the loop if book is found
+
+         elif response_Book.lower() == item.Author_Name.lower():
+            display_book = (f"Book name: {item.Book_name}, status of book: {item.Status}")
+            print(display_book)
+            count = count + 1
+            
+            tk.Label(text=display_book, font=('Arial', 10)).grid(row=count, column=0, columnspan=10, pady=5, sticky='nsew')
+            print(count)
+            
+
+        
+           
+             
+
+
+
+    def issue_book(self):
+    # Directly get the book name from entry, assuming the whole text is the book name
+     entry_issue = self.Entry_issue_book.get().split(":")[1].strip().lower()
+
+     book_found = False
+     for item in Library:
+        if item.Book_name.lower() == entry_issue and item.Status.strip() == "Yes":
+            item.Status = "No"
+            book_found = True
+            messagebox.showinfo("Success", f"The book '{item.Book_name}' has been issued.")
+            break  # Exit the loop if book is found and issued
+
+     if not book_found:
+        messagebox.showerror("Error", "Book not found or is not available.")
+
+     with open(r"C:\Users\glenn\OneDrive\Desktop\python\library_record.txt", 'w') as file:
+        for item in Library:
+            file.write(f"{item.ID.strip()}|{item.Book_name}|{item.Author_Name}|{item.Status}\n")  # Ensure newline character is correctly placed
+
+    def Return_book(self):
+    
+     return_ID = self.Entry_Return_Book.get().split(":")[1].strip()
+
+     book_returned = False
+     for item in Library:
+        if item.ID.strip() == return_ID and item.Status.strip() == "No":
+            item.Status = "Yes"
+            book_returned = True
+            messagebox.showinfo("Success", f"The book '{item.Book_name}' has been returned.")
+            break  # Exit the loop if book is found and returned
+
+     if not book_returned:
+        messagebox.showerror("Error", "Book ID not found or book is not out.")
+
+     with open(r"C:\Users\glenn\OneDrive\Desktop\python\library_record.txt", 'w') as file:
+        for item in Library:
+            file.write(f"{item.ID.strip()}|{item.Book_name}|{item.Author_Name}|{item.Status}\n")  # Ensure newline character is correctly placed
+
+                 
+
+            
+                    
+
+          
+           
+        
+                
+        
+        
+   
+
+if __name__ == "__main__":
+    app = LibraryApp()
+    app.mainloop()
