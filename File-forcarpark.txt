@@ -1,0 +1,13 @@
+]
+Bill amount: 0.03349719722222222, Unpark datetime: 2024-03-04 17:27:35.713631, Payment mode: 
+Bill amount: 0.23966898888888888, Unpark datetime: 2024-03-04 17:28:49.935476, Payment mode: upi
+Bill amount: 0.3713343194444444, Unpark datetime: 2024-03-04 17:29:37.334995, Payment mode: 
+Bill amount: 0.6536456305555556, Unpark datetime: 2024-03-04 17:31:18.967067, Payment mode: 
+Bill amount: 0.7331485111111112, Unpark datetime: 2024-03-04 17:31:47.588104, Payment mode: 
+Bill amount: 0.7901006944444444, Unpark datetime: 2024-03-04 17:32:08.090890, Payment mode: 
+Bill amount: 0.8970394305555556, Unpark datetime: 2024-03-04 17:32:46.588835, Payment mode: cash
+Bill amount: 0.022457166666666667, Unpark datetime: 2024-03-05 10:32:17.355970, Payment mode: UPI
+Bill amount: 0.3532173694444445, Unpark datetime: 2024-03-05 10:34:16.429643, Payment mode: UPI
+Bill amount: 0.36508178055555557, Unpark datetime: 2024-03-05 10:34:20.700831, Payment mode: UPI
+Bill amount: 0.39596646111111106, Unpark datetime: 2024-03-05 10:34:31.819316, Payment mode: UPI
+Bill amount: 0.11290190972222221, Unpark datetime: 2024-03-09 19:43:01.983542, Payment mode: upi
