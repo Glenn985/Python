@@ -1,11 +1,18 @@
 import tkinter as tk
-from tkinter import messagebox, Label
+from tkinter import messagebox
+import os
+import re
+import matplotlib.pyplot as plt
+import cv2
+import easyocr
+
 
 
 from datetime import datetime, date,timedelta
 
 Parking_list =[]
-
+Plotting = []
+input_Numberplate = 0
 
 class billing:
     def __init__(self, vehiclenumber, timeofentry, type_of_Vehicle):
@@ -21,8 +28,8 @@ class CarParking:
         self.num_Truck = num_Truck
         self.num_PhysicallyDisabled = num_PhysicallyDisabled
 
+   
 
-        
     def park_vehicle(self, vehicle_type):
         if vehicle_type == '2W':
             if self.num_2W > 0:
@@ -76,13 +83,6 @@ class CarParking:
         else:
             print("Invalid vehicle type.")
 
-    
-    def open_file():
-     file_path = r"C:\Users\glenn\OneDrive\Desktop\python\File-forcarpark.txt"
-     os.startfile(file_path)
-
-   
-
     def update_remaining(self):
         app.update_remaining()
 
@@ -90,67 +90,74 @@ class CarParking:
 
 class ParkingApp(tk.Tk):
     def __init__(self):
-        super().__init__() 
+        super().__init__()
 
-        self.title("Parking Management System")
-        self.geometry("400x300")
+        self.selected_option = tk.StringVar(self)
+        self.selected_option.set("reports")  # setting a default value
+
 
         self.label = tk.Label(self, text="Parking Management System", font=('Arial', 14))
-        self.label.pack(pady=10)
+        self.label.grid(row=0, column=0, columnspan=2, pady=5)
 
         self.label_remaining = tk.Label(self, text="")
-        self.label_remaining.pack(pady=5)
+        self.label_remaining.grid(row=1, column=0, columnspan=2, pady=5)
 
+        # Entry widgets
         self.Entrypayment = tk.Entry(self, width=50)
-        self.Entrypayment.pack(pady=5)
-        self.Entrypayment.insert(1, "Vehicle payment:")
-        payment_mode = self.Entrypayment.get()
-       
+        self.Entrypayment.grid(row=2, column=0, columnspan=2, pady=5)
+        self.Entrypayment.insert(0, "Vehicle payment:")
 
-      
-        
         self.EntryNumber = tk.Entry(self, width=50)
-        self.EntryNumber.pack(pady=5)
-        self.EntryNumber.insert(1, "Vehicle Number:")
+        self.EntryNumber.grid(row=3, column=0, columnspan=2, pady=5)
+        self.EntryNumber.insert(0, "Vehicle Number:")
 
-        self.EntryUnpark = tk.Entry(self, width=50)
-        self.EntryUnpark.pack(pady=5)
-        self.EntryUnpark.insert(1, "Unpark Vehicle Number:")
-        Unpark_number = self.EntryUnpark.get()
+         
 
+        # Buttons
         self.button_park_2W = tk.Button(self, text="Park 2-Wheeler", command=lambda: self.park_vehicle('2W'))
-        self.button_park_2W.pack(pady=5)
-
-        self.button_park_4W = tk.Button(self, text="Park 4-Wheeler", command=lambda: self.park_vehicle('4W'))
-        self.button_park_4W.pack(pady=5)
-
-        self.button_park_Truck = tk.Button(self, text="Park Truck", command=lambda: self.park_vehicle('Truck'))
-        self.button_park_Truck.pack(pady=5)
-
-        self.button_park_PD = tk.Button(self, text="Park Physically Disabled", command=lambda: self.park_vehicle('PhysicallyDisabled'))
-        self.button_park_PD.pack(pady=5)
+        self.button_park_2W.grid(row=5, column=0, padx=5, pady=5)
 
         self.button_unpark_2W = tk.Button(self, text="Unpark 2-Wheeler", command=lambda: self.unpark_vehicle('2W'))
-        self.button_unpark_2W.pack(pady=5)
+        self.button_unpark_2W.grid(row=5, column=1, padx=5, pady=5)
+
+        self.button_park_4W = tk.Button(self, text="Park 4-Wheeler", command=lambda: self.park_vehicle('4W'))
+        self.button_park_4W.grid(row=6, column=0, padx=5, pady=5)
 
         self.button_unpark_4W = tk.Button(self, text="Unpark 4-Wheeler", command=lambda: self.unpark_vehicle('4W'))
-        self.button_unpark_4W.pack(pady=5)
+        self.button_unpark_4W.grid(row=6, column=1, padx=5, pady=5)
+        
+        self.button_park_Truck = tk.Button(self, text="Park Truck", command=lambda: self.park_vehicle('Truck'))
+        self.button_park_Truck.grid(row=7, column=0, padx=5, pady=5)
 
         self.button_unpark_Truck = tk.Button(self, text="Unpark Truck", command=lambda: self.unpark_vehicle('Truck'))
-        self.button_unpark_Truck.pack(pady=5)
+        self.button_unpark_Truck.grid(row=7, column=1, padx=5, pady=5)
+
+        self.button_park_PD = tk.Button(self, text="Park Physically Disabled", command=lambda: self.park_vehicle('PhysicallyDisabled'))
+        self.button_park_PD.grid(row=8, column=0, padx=5, pady=5)
 
         self.button_unpark_PD = tk.Button(self, text="Unpark Physically Disabled", command=lambda: self.unpark_vehicle('PhysicallyDisabled'))
-        self.button_unpark_PD.pack(pady=5)
-        
-        self.button_OpenFile = tk.Button(self, text="Open File", command=lambda: open_file())
-        self.button_OpenFile.pack(pady=5)
+        self.button_unpark_PD.grid(row=8, column=1, padx=5, pady=5)
+
+         
+
+        options = ["Report","today", "last 3 days"]
+        self.selected_option = tk.StringVar(self)
+        self.selected_option.set("Reports")  
+
+        self.option_menu = tk.OptionMenu(self, self.selected_option, *options,command=self.get_reports)
+        self.option_menu.grid(row=9, column=0, columnspan=4, pady=10)
+        self.selected_option.set(options[0]) 
 
         self.button_exit = tk.Button(self, text="Exit", command=self.destroy)
-        self.button_exit.pack(pady=5)
+        self.button_exit.grid(row=10, column=0, columnspan=2, pady=5)
+        self.button_scan = tk.Button(self, text="scan", command=lambda: self.get_licenseplate())
+        self.button_scan.grid(row=11, column=1, padx=5, pady=5)
 
+        
         self.parking_lot = CarParking(num_2W=10, num_4W=20, num_Truck=5, num_PhysicallyDisabled=2)
+ 
      
-    
+     
         
     def update_remaining(self):
         remaining_text = f"Remaining Spaces: 2W: {self.parking_lot.num_2W}, 4W: {self.parking_lot.num_4W}, Truck: {self.parking_lot.num_Truck}, Physically Disabled: {self.parking_lot.num_PhysicallyDisabled}"
@@ -159,8 +166,9 @@ class ParkingApp(tk.Tk):
     def park_vehicle(self, vehicle_type):
         if self.parking_lot.park_vehicle(vehicle_type):
             print(f"{vehicle_type} parked successfully!")
-            entered_value = self.EntryNumber.get()
-            payment_mode = self.Entrypayment.get()
+            #entered_value = self.EntryNumber.get().split(":")[1].strip()
+            entered_value = self.get_licenseplate()
+            payment_mode = self.Entrypayment.get().split(":")[1].strip()
             current_datetime = datetime.now()
         
             Parking_list.append(billing(entered_value,current_datetime, vehicle_type))
@@ -173,41 +181,186 @@ class ParkingApp(tk.Tk):
             
 
     def unpark_vehicle(self, vehicle_type):
-      self.parking_lot.unpark_vehicle(vehicle_type)
-      print(f"{vehicle_type} unparked successfully!")
-        
-        
+        self.parking_lot.unpark_vehicle(vehicle_type)
+        print(f"{vehicle_type} unparked successfully!")
+        payment_mode = self.Entrypayment.get().split(":")[1].strip()
         
         
         
 
+
+
+        found = False
+        Unpark_number = self.get_licenseplate()
+
+        
+        for bill in Parking_list:
+          if Unpark_number == bill.vehiclenumber:
+           unpark_datetime = datetime.now()
+           Time_parked = (unpark_datetime - bill.timeofentry).total_seconds() / 3600
+           file_path = "C:\\Users\\glenn\\OneDrive\\Desktop\\python\\File-forcarpark.txt"
+           with open(file_path,'a') as file:
+           
+
+        # Calculate the bill based on the type of vehicle
+            if bill.type_of_Vehicle == "Truck":
+             bill_amount = Time_parked * 50
+            elif bill.type_of_Vehicle == "2W":
+             bill_amount = Time_parked * 10
+            elif bill.type_of_Vehicle == "4W":
+             bill_amount = Time_parked * 25
+            elif bill.type_of_Vehicle == "PhysicallyDisabled":
+              bill_amount = Time_parked * 5
+
+        # Show the bill as a message info
+            response = messagebox.showinfo("Bill", f"Your bill amount is: {bill_amount} {payment_mode}")
+            content = f"Bill amount: {bill_amount}, Unpark datetime: {unpark_datetime}, Payment mode: {payment_mode}\n"
+            file.write(content)
+
+           
+          found = True
+          break
+
+        if found:
+         print("Yes")
+        else:
+         print("No")
+
+     
+
+
+        
+    def get_reports(self,selected_option):
+         selected_option = self.selected_option.get()#
+         datetime_pattern = r"\d{4}-\d{2}-\d{2} \d{2}"
+         datetime_pattern2 = r"\d{4}-\d{2}-\d{2}"
+         file_path = "C:\\Users\\glenn\\OneDrive\\Desktop\\python\\File-forcarpark.txt"
+         with open(file_path,'r') as file:
+        
+          
+          print("Selected option:", selected_option)
+          if selected_option == "today":
+              date_Now = datetime.now()
+              date_only = date_Now.strftime("%Y-%m-%d")
+              date_hour = date_Now.strftime("%Y-%m-%d-%H")
+              
+              hour = str(date_hour).split('-')[-1]
+              
+              print(hour)
+              for item in file:
+                match = re.search(datetime_pattern2, item)
+                if match:
+                    matched_date_str = match.group()
+                    matched_date = datetime.strptime(matched_date_str, "%Y-%m-%d")
+                    if matched_date.strftime("%Y-%m-%d") == date_only:
+                        match2 = re.search(datetime_pattern, item)
+                        if match2:
+                            Plotting.append(match2.group().split(' ')[-1].split('-')[-1])
+ 
+              print("Plotting:", Plotting)
+      
+                        
+              hours = list(set(Plotting))  # Unique hours
+              counts = [Plotting.count(hour) for hour in hours]  
+              print(hours)
+              print(counts)
+              plt.bar(hours, counts)
+              plt.xlabel('Hour')
+              plt.ylabel('Frequency')
+              plt.title('Number of Cars Parked by Hour')
+              plt.show()
+
+    
+    def get_licenseplate(self): 
+       cap = cv2.VideoCapture(0)
+
+       reader = easyocr.Reader(['en'])
+
+       while True:
+    # Capture frame-by-frame
+        ret, frame = cap.read()
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+     
+        edged = cv2.Canny(gray,30,200)
+
+        contours, _ = cv2.findContours(edged.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
+
+    # Find the contour representing the license plate
+        license_plate_contour = None
+        for contour in contours:
+           approx = cv2.approxPolyDP(contour, 10, True)
+           if len(approx) == 4:
+              license_plate_contour = approx
+              break
+
+    # Extract the license plate region
+        if license_plate_contour is not None:
+          x, y, w, h = cv2.boundingRect(license_plate_contour)
+          cropped_image = frame[y:y+h, x:x+w]
+
+        # Convert cropped image to grayscale
+          cropped_image_gray = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+
+        # Perform OCR on the cropped image
+          result = reader.readtext(cropped_image_gray)
+
+        # Process the OCR result
+          for detection in result:
+            text = detection[1]
+            cv2.putText(frame, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+            pattern = r'^[A-Za-z]{3} \d{4}[A-Za-z]$'
+            if re.match(pattern,text):
+             print(text)
+             input_Numberplate = text
+             return text
+             
+              
+    # Display the frame with detected text
+        cv2.imshow('License Plate Detection', frame)
          
-      Unpark_number = self.EntryUnpark.get()
-      payment_mode =  self.Entrypayment.get()
-      for bill in Parking_list:
-       if Unpark_number == bill.vehiclenumber:
-        unpark_datetime = datetime.now()
-        Time_parked = (unpark_datetime - bill.timeofentry).total_seconds() / 3600 
-        print(Time_parked)
 
-        if bill.type_of_Vehicle == "Truck":
-           response =  messagebox.showinfo(payment_mode,Time_parked*50)
-        elif bill.type_of_Vehicle == "2W":
-            response =  messagebox.showinfo(payment_mode,Time_parked*10)
-        elif bill.type_of_Vehicle == "4W":
-            response =  messagebox.showinfo(payment_mode,Time_parked*25)
-        elif bill.type_of_Vehicle == "PhysicallyDisabled":
-            response =  messagebox.showinfo(payment_mode,Time_parked*5)
+    # Check for key press
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+         break
+        
 
+# Releaf       se the camera and close all OpenCV windows
+       cap.release()
+       cv2.destroyAllWindows()
+
+
+                       
+
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
        
-        Label(self,text=response).pack()
 
-  
-
-
-        with open("C:\\Users\\glenn\\OneDrive\\Desktop\\python\\File-forcarpark.txt", "w") as file:
-          content = f"Date: {datetime.now()}, Type of vehicle: {bill.type_of_Vehicle}, Cost: {Time_parked*50}"
-          file.write(content + "\n")
 
 
 
@@ -215,4 +368,3 @@ class ParkingApp(tk.Tk):
 if __name__ == "__main__":
     app = ParkingApp()
     app.mainloop()
-
