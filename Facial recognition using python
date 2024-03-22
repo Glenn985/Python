@@ -1,0 +1,45 @@
+import cv2
+import face_recognition
+
+# Load the images in RGB format
+img1 = cv2.imread("Narendra_modi.jpg")
+img2 = cv2.imread("modi2.jpg")
+img1_rgb = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
+img2_rgb = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
+
+# Get the face encoding of img1 (Narendra_modi.jpg)
+img1_encoding = face_recognition.face_encodings(img1_rgb)[0]
+
+# Capture video from the default camera
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+
+    # Convert the frame to RGB format
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+    # Find face encodings in the current frame
+    face_encodings = face_recognition.face_encodings(rgb_frame)
+
+    # If at least one face is found in the frame
+    if face_encodings:
+        # Take the first face encoding found
+        current_face_encoding = face_encodings[0]
+
+        # Compare the encodings of img1 with the current face encoding
+        result = face_recognition.compare_faces([img1_encoding], current_face_encoding)
+        
+        print(result)
+        if result == [True]:
+            break
+    # Display the current frame
+    cv2.imshow('Video', frame)
+
+    # Exit the loop if 'q' is pressed
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Release the capture
+cap.release()
+cv2.destroyAllWindows()
