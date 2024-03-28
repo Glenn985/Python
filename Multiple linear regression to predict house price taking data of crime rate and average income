@@ -1,0 +1,75 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def linear_regression(X, y, learning_rate, epochs):
+    n_samples, n_features = X.shape
+    # Initialize weights and bias to zeros
+    weights = np.zeros(n_features)
+    bias = 0
+    # Gradient descent
+    for _ in range(epochs):
+        # Predictions
+        y_pred = np.dot(X, weights) + bias
+        # Compute gradients
+        dw = (1 / n_samples) * np.dot(X.T, (y_pred - y))
+        db = (1 / n_samples) * np.sum(y_pred - y)
+        # Update weights and bias
+        weights -= learning_rate * dw
+        bias -= learning_rate * db
+    return weights, bias
+
+# Function to make predictions
+def predict(X, weights, bias):
+    return np.dot(X, weights) + bias
+
+# Function to calculate mean squared error
+def mean_squared_error(y_true, y_pred):
+    return np.mean((y_true - y_pred)**2)
+
+# Example data
+X = np.array([[30000, 28],
+              [85000, 1],
+              [250000, 45],
+              [340000, 0]])
+
+y = np.array([100000, 450000, 500000, 4000000])
+
+# Normalize features (optional but recommended)
+X_normalized = (X - X.mean(axis=0)) / X.std(axis=0)
+
+# Hyperparameters
+learning_rate = 0.0001
+epochs = 1000
+
+# Perform linear regression
+weights, bias = linear_regression(X_normalized, y, learning_rate, epochs)
+
+# Predict house price for given average income and crime rate
+avg_income_input = float(input("Enter average income: "))
+crime_rate_input = float(input("Enter crime rate: "))
+
+# Normalize input
+input_normalized = np.array([(avg_income_input - X[:, 0].mean()) / X[:, 0].std(),
+                              (crime_rate_input - X[:, 1].mean()) / X[:, 1].std()])
+
+# Make prediction
+price_prediction = predict(input_normalized, weights, bias)
+
+print("Predicted house price:", price_prediction)
+
+# Plot the data
+plt.scatter(X[:, 0], y, label='Data points')
+plt.xlabel('Average Income')
+plt.ylabel('House Price')
+
+# Plot the regression line
+x_values = np.linspace(X[:, 0].min(), X[:, 0].max(), 100)
+y_values = weights[0] * ((x_values - X[:, 0].mean()) / X[:, 0].std()) + bias
+plt.plot(x_values, y_values, color='red', label='Regression Line')
+
+# Plot the predicted point
+plt.scatter(avg_income_input, price_prediction, color='green', label='Predicted Point')
+
+plt.legend()
+plt.show()
