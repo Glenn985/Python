@@ -301,6 +301,16 @@ class ParkingApp(tk.Tk):
           x, y, w, h = cv2.boundingRect(license_plate_contour)
           cropped_image = frame[y:y+h, x:x+w]
 
+#Extracting the Region of Interest (ROI):
+
+# cropped_image = frame[y:y+h, x:x+w] uses the coordinates and dimensions from the bounding box to extract the region of interest (ROI) from the original frame.
+ # frame[y:y+h, x:x+w]: This slices the original frame to get the sub-image containing only the license plate.
+ # y:y+h: Selects all rows from y to y + h.
+ # x:x+w: Selects all columns from x to x + w.
+ # The resulting cropped_image is a smaller image that contains only the license plate, which can then be processed further.
+
+
+
         # Convert cropped image to grayscale
           cropped_image_gray = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
 
