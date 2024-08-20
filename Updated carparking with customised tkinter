@@ -1,0 +1,403 @@
+import tkinter as tk
+from tkinter import messagebox
+import os
+import re
+import matplotlib.pyplot as plt
+import cv2
+import easyocr
+import customtkinter as ctk
+from tkinter import ttk
+
+from datetime import datetime, date,timedelta
+
+
+def simple_hash(s):
+    return sum(ord(char) for char in s) % 100
+
+Parking_list ={}
+Plotting = []
+input_Numberplate = 0
+
+class billing:
+    def __init__(self, vehiclenumber, timeofentry, type_of_Vehicle):
+        self.vehiclenumber = vehiclenumber
+        self.timeofentry = timeofentry
+      
+        self.type_of_Vehicle = type_of_Vehicle
+
+class CarParking:
+    def __init__(self, num_2W, num_4W, num_Truck, num_PhysicallyDisabled):
+        self.num_2W = num_2W
+        self.num_4W = num_4W
+        self.num_Truck = num_Truck
+        self.num_PhysicallyDisabled = num_PhysicallyDisabled
+
+   
+
+    def park_vehicle(self, vehicle_type):
+        if vehicle_type == '2W':
+            if self.num_2W > 0:
+                self.num_2W -= 1
+                self.update_remaining()
+                return True
+            else:
+                print("No space available for 2-wheelers.")
+                return False
+        elif vehicle_type == '4W':
+            if self.num_4W > 0:
+                self.num_4W -= 1
+                self.update_remaining()
+                return True
+            else:
+                print("No space available for 4-wheelers.")
+                return False
+        elif vehicle_type == 'Truck':
+            if self.num_Truck > 0:
+                self.num_Truck -= 1
+                self.update_remaining()
+                return True
+            else:
+                print("No space available for trucks.")
+                return False
+        elif vehicle_type == 'PhysicallyDisabled':
+            if self.num_PhysicallyDisabled > 0:
+                self.num_PhysicallyDisabled -= 1
+                self.update_remaining()
+                return True
+            else:
+                print("No space available for physically disabled.")
+                return False
+        else:
+            print("Invalid vehicle type.")
+            return False
+
+    def unpark_vehicle(self, vehicle_type):
+        if vehicle_type == '2W':
+            self.num_2W += 1
+            self.update_remaining()
+        elif vehicle_type == '4W':
+            self.num_4W += 1
+            self.update_remaining()
+        elif vehicle_type == 'Truck':
+            self.num_Truck += 1
+            self.update_remaining()
+        elif vehicle_type == 'PhysicallyDisabled':
+            self.num_PhysicallyDisabled += 1
+            self.update_remaining()
+        else:
+            print("Invalid vehicle type.")
+
+    def update_remaining(self):
+        app.update_remaining()
+
+        print("f")
+
+class ParkingApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+
+        self.frame = tk.Frame(self)
+        self.frame.grid(row=0, column=2, rowspan=20, padx=10, pady=10, sticky='nsew')
+
+        self.table = ttk.Treeview(self.frame, columns=('first', 'second', 'third', 'fourth', 'fifth'), show='headings')
+        self.table.heading('first', text='Vehicle Number')
+        self.table.heading('second', text='Time of Entry')
+        self.table.heading('third', text='Time of Exit')
+        self.table.heading('fourth', text='Fees Paid')
+        self.table.heading('fifth', text='Additional Info')
+
+        self.table.column('first', width=150)
+        self.table.column('second', width=150)
+        self.table.column('third', width=150)
+        self.table.column('fourth', width=100)
+        self.table.column('fifth', width=200)
+
+        self.table.pack(expand=True, fill='both')
+        
+        
+ 
+        
+
+
+
+        self.selected_option = ctk.StringVar(self)
+        self.selected_option.set("reports")   
+
+
+        self.label = ctk.CTkLabel(self, text="Parking Management System", font=('Arial', 14))
+        self.label.grid(row=0, column=0, columnspan=2, pady=5)
+
+        self.label_remaining = ctk.CTkLabel(self, text="")
+        self.label_remaining.grid(row=1, column=0, columnspan=2, pady=5)
+
+        # Entry widgets
+        self.Entrypayment = ctk.CTkEntry(self, width=500)
+        self.Entrypayment.grid(row=1, column=0)
+        self.Entrypayment.insert(0, "Vehicle payment:")
+
+        self.EntryNumber = ctk.CTkEntry(self, width=500)
+        self.EntryNumber.grid(row=2, column=0, columnspan=1, pady=0)
+        self.EntryNumber.insert(0, "Vehicle Number:")
+
+         
+
+        # Buttons
+        self.button_park_2W = ctk.CTkButton(self, height=50,width=500, text="Park 2-Wheeler", command=lambda: self.park_vehicle('2W'))
+        self.button_park_2W.grid(row=4, column=0)
+
+        self.button_unpark_2W = ctk.CTkButton(self,height=50,width=500, text="Unpark 2-Wheeler", command=lambda: self.unpark_vehicle('2W'))
+        self.button_unpark_2W.grid(row=5, column=0)
+
+        self.button_park_4W = ctk.CTkButton(self,height=50,width=500,text="Park 4-Wheeler", command=lambda: self.park_vehicle('4W'))
+        self.button_park_4W.grid(row=6, column=0)
+
+        self.button_unpark_4W = ctk.CTkButton(self,height=50,width=500, text="Unpark 4-Wheeler", command=lambda: self.unpark_vehicle('4W'))
+        self.button_unpark_4W.grid(row=7, column=0)
+        
+        self.button_park_Truck = ctk.CTkButton(self,height=50,width=500, text="Park Truck", command=lambda: self.park_vehicle('Truck'))
+        self.button_park_Truck.grid(row=8, column=0)
+
+        self.button_unpark_Truck = ctk.CTkButton(self,height=50,width=500, text="Unpark Truck", command=lambda: self.unpark_vehicle('Truck'))
+        self.button_unpark_Truck.grid(row=9, column=0)
+
+        self.button_park_PD = ctk.CTkButton(self,height=50,width=500, text="Park Physically Disabled", command=lambda: self.park_vehicle('PhysicallyDisabled'))
+        self.button_park_PD.grid(row=10, column=0)
+
+        self.button_unpark_PD = ctk.CTkButton(self,height=50,width=500, text="Unpark Physically Disabled", command=lambda: self.unpark_vehicle('PhysicallyDisabled'))
+        self.button_unpark_PD.grid(row=11, column=0,padx=0)
+
+         
+
+
+        self.button_exit = ctk.CTkButton(self,height=50,width=500, text="Exit", command=self.destroy)
+        self.button_exit.grid(row=12, column=0)
+        
+        
+        self.parking_lot = CarParking(num_2W=10, num_4W=20, num_Truck=5, num_PhysicallyDisabled=2)
+ 
+     
+     
+        
+    def update_remaining(self):
+        remaining_text = f"Remaining Spaces: 2W: {self.parking_lot.num_2W}, 4W: {self.parking_lot.num_4W}, Truck: {self.parking_lot.num_Truck}, Physically Disabled: {self.parking_lot.num_PhysicallyDisabled}"
+        self.label_remaining.configure(text=remaining_text)
+
+    def park_vehicle(self, vehicle_type):
+        if self.parking_lot.park_vehicle(vehicle_type):
+            print(f"{vehicle_type} parked successfully!")
+            
+            if  self.EntryNumber.get().split(":")[1].strip()== "":
+             entered_value = self.get_licenseplate()
+            else:
+                entered_value= self.EntryNumber.get().split(":")[1].strip()
+
+            payment_mode = self.Entrypayment.get().split(":")[1].strip()
+            current_datetime = datetime.now()
+            licenseplatehash = simple_hash(entered_value) 
+            print(licenseplatehash)
+            Parking_list[licenseplatehash] = billing(entered_value, current_datetime, vehicle_type) 
+            print(Parking_list[licenseplatehash].vehiclenumber)
+            response =  messagebox.showinfo("information",Parking_list[licenseplatehash].vehiclenumber)
+            Label(self,text=response).pack()
+         
+            
+        else:
+            print(f"Unable to park {vehicle_type}.")
+            
+
+    def unpark_vehicle(self, vehicle_type):
+        self.parking_lot.unpark_vehicle(vehicle_type)
+        print(f"{vehicle_type} unparked successfully!")
+        payment_mode = self.Entrypayment.get().split(":")[1].strip()  
+        Unpark_number = self.EntryNumber.get().split(":")[1].strip()
+        if Unpark_number =="":
+           Unpark_number = self.get_licenseplate()
+        hash_of_unpark= (simple_hash(Unpark_number))
+
+        
+        #for bill in Parking_list:
+          #if Unpark_number == bill.vehiclenumber:
+        if   Parking_list[hash_of_unpark].vehiclenumber == Unpark_number:
+           unpark_datetime = datetime.now()
+           Time_parked = (unpark_datetime - Parking_list[simple_hash(Unpark_number)].timeofentry).total_seconds() / 3600
+           file_path = "File-forcarpark.txt"
+           with open(file_path,'a') as file:
+           
+
+        # Calculate the bill based on the type of vehicle
+            if Parking_list[hash_of_unpark].type_of_Vehicle == "Truck":
+             bill_amount = Time_parked * 50
+            elif Parking_list[hash_of_unpark].type_of_Vehicle == "2W":
+             bill_amount = Time_parked * 10
+            elif Parking_list[hash_of_unpark].type_of_Vehicle == "4W":
+             bill_amount = Time_parked * 25
+            elif Parking_list[hash_of_unpark].type_of_Vehicle == "PhysicallyDisabled":
+              bill_amount = Time_parked * 5
+
+        # Show the bill as a message info
+            response = messagebox.showinfo("Bill", f"Your bill amount is: {bill_amount} {payment_mode}")
+            
+            content = f"Bill amount: {bill_amount}, Unpark datetime: {unpark_datetime}, Payment mode: {payment_mode}\n"
+            time_entry = Parking_list[hash_of_unpark].timeofentry
+            print(Parking_list[hash_of_unpark])
+            print(bill_amount)
+            self.table.insert('', 'end', values=(Unpark_number,time_entry,unpark_datetime,bill_amount,payment_mode))
+            file.write(content)
+
+           
+           
+
+        
+
+     
+
+
+        
+    def get_reports(self,selected_option):
+         selected_option = self.selected_option.get()#
+         datetime_pattern = r"\d{4}-\d{2}-\d{2} \d{2}"
+         datetime_pattern2 = r"\d{4}-\d{2}-\d{2}"
+         file_path = "File-forcarpark.txt"
+         with open(file_path,'r') as file:
+        
+          
+          print("Selected option:", selected_option)
+          if selected_option == "today":
+              date_Now = datetime.now()
+              date_only = date_Now.strftime("%Y-%m-%d")
+              date_hour = date_Now.strftime("%Y-%m-%d-%H")
+              
+              hour = str(date_hour).split('-')[-1]
+              
+              print(hour)
+              for item in file:
+                match = re.search(datetime_pattern2, item)
+                if match:
+                    matched_date_str = match.group()
+                    matched_date = datetime.strptime(matched_date_str, "%Y-%m-%d")
+                    if matched_date.strftime("%Y-%m-%d") == date_only:
+                        match2 = re.search(datetime_pattern, item)
+                        if match2:
+                            Plotting.append(match2.group().split(' ')[-1].split('-')[-1])
+ 
+              print("Plotting:", Plotting)
+      
+                        
+              hours = list(set(Plotting))  # Unique hours
+              counts = [Plotting.count(hour) for hour in hours]  
+              print(hours)
+              print(counts)
+              plt.bar(hours, counts)
+              plt.xlabel('Hour')
+              plt.ylabel('Frequency')
+              plt.title('Number of Cars Parked by Hour')
+              plt.show()
+
+    
+    def get_licenseplate(self):
+
+      if self.EntryNumber.get().split(":")[1].strip() == "":
+       cap = cv2.VideoCapture(0)
+
+       reader = easyocr.Reader(['en'])
+
+       while True:
+    # Capture frame-by-frame
+        ret, frame = cap.read()
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+     
+        edged = cv2.Canny(gray,30,200)
+
+        contours, _ = cv2.findContours(edged.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10] #all edges circle or square anything etc
+
+    # Find the contour representing the license plate either a rectangle or square
+        license_plate_contour = None
+        for contour in contours:
+           approx = cv2.approxPolyDP(contour, 10, True)
+           if len(approx) == 4:
+              license_plate_contour = approx
+              break
+
+    # Extract the license plate region
+        if license_plate_contour is not None:
+          x, y, w, h = cv2.boundingRect(license_plate_contour)
+          cropped_image = frame[y:y+h, x:x+w]
+
+#Extracting the Region of Interest (ROI):
+
+# cropped_image = frame[y:y+h, x:x+w] uses the coordinates and dimensions from the bounding box to extract the region of interest (ROI) from the original frame.
+ # frame[y:y+h, x:x+w]: This slices the original frame to get the sub-image containing only the license plate.
+ # y:y+h: Selects all rows from y to y + h.
+ # x:x+w: Selects all columns from x to x + w.
+ # The resulting cropped_image is a smaller image that contains only the license plate, which can then be processed further.
+
+
+
+        # Convert cropped image to grayscale
+          cropped_image_gray = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+
+        # Perform OCR on the cropped image
+          result = reader.readtext(cropped_image_gray)
+
+        # Process the OCR result
+          for detection in result:
+            text = detection[1]
+            cv2.putText(frame, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+            pattern = r'^[A-Za-z]{3} \d{4}[A-Za-z]$'
+            if re.match(pattern,text):
+             print(text)
+             input_Numberplate = text
+             return text
+             
+              
+    # Display the frame with detected text
+        cv2.imshow('License Plate Detection', frame)
+         
+
+    # Check for key press
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+         break
+        
+
+# Releaf       se the camera and close all OpenCV windows
+       cap.release()
+       cv2.destroyAllWindows()
+
+
+                       
+
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+       
+
+
+
+
+
+if __name__ == "__main__":
