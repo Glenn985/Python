@@ -1,0 +1,49 @@
+import socket
+import threading
+
+host = '192.168.0.225'  # Server's IP address
+port = 9999
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((host, port))
+
+def send_commands():
+    while True:
+        try:
+            data = input("Enter message to send: ")
+            if data == 'quit':
+                s.sendall(str.encode('quit'))  # Notify server to quit
+                s.close()
+                break
+            if len(data) > 0:
+                s.sendall(str.encode(data))
+                print(f"Sent: {data}")  # Debugging line
+        except Exception as e:
+            print(f"Error sending data: {e}")
+            break
+
+def receive_commands():
+    while True:
+        try:
+            data = s.recv(1024).decode("utf-8")
+            if data:
+                print("GOT THE DATA")
+            if len(data) > 0:
+                print("Server:",data.strip(""))
+            elif data == 'quit':
+                print("Server closed the connection.")
+                break
+        except Exception as e:
+            print(f"Error receiving data: {e}")
+            break
+
+# Start threads for sending and receiving messages
+send_thread = threading.Thread(target=send_commands)
+receive_thread = threading.Thread(target=receive_commands)
+
+send_thread.start()
+receive_thread.start()
+
+send_thread.join()
+receive_thread.join()
+
